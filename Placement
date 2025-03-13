@@ -1,0 +1,95 @@
+def battleships():
+  # Initialize the game board (10x10)
+  board = [[' ' for _ in range(10)] for _ in range(10)]
+
+  # Ship sizes
+  ships = [
+      {"name": "Carrier", "size": 5, "symbol": "C"},
+      {"name": "Battleship", "size": 4, "symbol": "B"},
+      {"name": "Cruiser", "size": 3, "symbol": "R"},
+      {"name": "Submarine", "size": 3, "symbol": "S"},
+      {"name": "Destroyer", "size": 2, "symbol": "D"}
+  ]
+
+  # Print the board
+  def print_board():
+      print("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10|")
+      print("--+---+---+---+---+---+---+---+---+---+---+")
+      for i in range(10):
+          row = chr(65 + i) + " | "  # Convert row number to letter (A-J)
+          for j in range(10):
+              row += board[i][j] + " | "
+          print(row)
+          print("--+---+---+---+---+---+---+---+---+---+---+")
+
+  # Check if a ship placement is valid (no overlaps, within bounds)
+  def is_valid_placement(row, col, size, direction):
+      # Check if ship is within bounds
+      if direction == "H" and col + size > 10:
+          return False
+      if direction == "V" and row + size > 10:
+          return False
+
+      # Check for overlaps
+      if direction == "H":
+          for i in range(size):
+              if board[row][col + i] != ' ':
+                  return False
+      else:  # Vertical
+          for i in range(size):
+              if board[row + i][col] != ' ':
+                  return False
+
+      return True
+
+  # Place a ship on the board
+  def place_ship(ship):
+      valid_placement = False
+
+      while not valid_placement:
+          print(f"\nPlacing {ship['name']} (size: {ship['size']})")
+          print_board()
+
+          # Get starting position
+          while True:
+              start_pos = input(f"Enter starting position (e.g., A1): ").upper()
+              if len(start_pos) >= 2 and start_pos[0] in "ABCDEFGHIJ" and start_pos[1:].isdigit():
+                  row = ord(start_pos[0]) - 65  # Convert letter to row index (0-9)
+                  col = int(start_pos[1:]) - 1  # Convert to 0-indexed
+                  if 0 <= row < 10 and 0 <= col < 10:
+                      break
+              print("Invalid position! Please use format like 'A1' to 'J10'.")
+
+          # Get direction
+          while True:
+              direction = input("Enter direction (H for horizontal, V for vertical): ").upper()
+              if direction in ["H", "V"]:
+                  break
+              print("Invalid direction! Please enter 'H' or 'V'.")
+
+          # Validate placement (no overlaps)
+          if is_valid_placement(row, col, ship["size"], direction):
+              valid_placement = True
+
+              # Place the ship
+              if direction == "H":
+                  for i in range(ship["size"]):
+                      board[row][col + i] = ship["symbol"]
+              else:  # Vertical
+                  for i in range(ship["size"]):
+                      board[row + i][col] = ship["symbol"]
+          else:
+              print("Invalid placement! Ship would overlap or go off the board. Try again.")
+
+  # Place all ships
+  print("Welcome to Battleships!")
+  print("You will place 5 ships of different sizes on the board.")
+
+  for ship in ships:
+      place_ship(ship)
+
+  print("\nAll ships have been placed!")
+  print_board()
+  print("\nGame setup complete! You can now play the game.")
+
+  battleships()
