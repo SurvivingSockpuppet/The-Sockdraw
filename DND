@@ -1,0 +1,450 @@
+
+import random
+import time
+from typing import Dict, List
+
+class Character:
+    def __init__(self, name: str, char_class: str):
+        self.name = name
+        self.char_class = char_class
+        self.level = 1
+        self.exp = 0
+        self.exp_to_level = 100
+        self.hp = self._get_base_hp()
+        self.skills = []
+        self.active_quests = []
+        self.completed_quests = []
+        self.max_hp = self.hp
+        self.strength = self._roll_stats()
+        self.dexterity = self._roll_stats()
+        self.constitution = self._roll_stats()
+        self.mana = self._get_base_mana()
+        self.crafting_materials = {}
+        self.equipment = {"weapon": None, "armor": None, "accessory": None}
+        self.max_mana = self.mana
+        self.inventory: List[str] = ["Health Potion"]
+        self.spells = ["Fireball", "Ice Bolt", "Lightning Strike", "Shadow Blast", "Arcane Missiles"] if char_class.lower() == "mage" else []
+
+    def _roll_stats(self) -> int:
+        rolls = sorted([random.randint(1, 6) for _ in range(4)])
+        return sum(rolls[1:])
+
+    def _get_base_hp(self) -> int:
+        hp_by_class = {
+            "warrior": 15,
+            "mage": 8,
+            "rogue": 10,
+            "paladin": 12,
+            "hunter": 10,
+            "necromancer": 8
+        }
+        return hp_by_class.get(self.char_class.lower(), 10)
+
+def _get_base_mana(self) -> int:
+        mana_by_class = {
+            "warrior": 50,
+            "mage": 100,
+            "rogue": 60,
+            "paladin": 80,
+            "hunter": 70,
+            "necromancer": 100
+        }
+        return mana_by_class.get(self.char_class.lower(), 50)
+
+def use_skill(self, skill_name: str) -> int:
+        skill_effects = {
+            # Warrior Skills
+            "Whirlwind": {"damage": (15, 25), "mana": 20, "effect": "AOE damage"},
+            "Shield Bash": {"damage": (10, 15), "mana": 15, "effect": "Stun"},
+            # Mage Skills
+            "Thunder Bolt": {"damage": (20, 30), "mana": 25, "effect": "Chain lightning"},
+            "Frost Nova": {"damage": (15, 25), "mana": 20, "effect": "Freeze"},
+            # Rogue Skills
+            "Shadow Step": {"damage": (10, 20), "mana": 15, "effect": "Dodge next attack"},
+            "Deadly Throw": {"damage": (25, 35), "mana": 30, "effect": "Bleed"},
+            # Paladin Skills
+            "Holy Strike": {"damage": (15, 25), "mana": 20, "effect": "Heal self"},
+            "Divine Shield": {"damage": (0, 0), "mana": 30, "effect": "Immunity"},
+            # Hunter Skills
+            "Aimed Shot": {"damage": (20, 30), "mana": 25, "effect": "Critical"},
+            "Trap": {"damage": (10, 15), "mana": 20, "effect": "Root"},
+            # Necromancer Skills
+            "Death Coil": {"damage": (25, 35), "mana": 30, "effect": "Lifesteal"},
+            "Raise Dead": {"damage": (15, 25), "mana": 35, "effect": "Summon"}
+        }
+
+        if skill_name in skill_effects:
+            skill = skill_effects[skill_name]
+            if self.mana >= skill["mana"]:
+                self.mana -= skill["mana"]
+                damage = random.randint(*skill["damage"])
+                print(f"You use {skill_name}! {skill['effect']}")
+                return damage
+            print("Not enough mana!")
+        return 0
+
+def craft_item(self, recipe_name: str) -> bool:
+        recipes = {
+            "Health Potion": {"herbs": 2, "crystal": 1},
+            "Mana Potion": {"mushroom": 2, "crystal": 1},
+            "Steel Sword": {"iron": 3, "wood": 1},
+            "Magic Staff": {"crystal": 2, "wood": 1},
+            "Leather Armor": {"leather": 3, "thread": 1}
+        }
+
+        if recipe_name in recipes:
+            required = recipes[recipe_name]
+            can_craft = all(
+                self.crafting_materials.get(mat, 0) >= amount
+                for mat, amount in required.items()
+            )
+            
+            if can_craft:
+                for mat, amount in required.items():
+                    self.crafting_materials[mat] -= amount
+                self.inventory.append(recipe_name)
+                print(f"Crafted {recipe_name}!")
+                return True
+            print("Not enough materials!")
+        return False
+
+    def level_up(self):
+        self.level += 1
+        self.max_hp += 5
+        self.hp = self.max_hp
+        self.exp -= self.exp_to_level
+        self.exp_to_level = int(self.exp_to_level * 1.5)
+        print(f"\nLevel Up! You are now level {self.level}!")
+        print(f"Max HP increased to {self.max_hp}")
+        
+        # Check for advanced skills
+        if self.level in ADVANCED_SKILLS[self.char_class.lower()]:
+            new_skill = ADVANCED_SKILLS[self.char_class.lower()][self.level]
+            self.skills.append(new_skill)
+            print(f"You learned an advanced skill: {new_skill}!")
+            return
+
+        # Learn regular skill
+        new_skills = {
+            "warrior": ["Whirlwind", "Shield Bash", "Battle Cry", "Heroic Strike", "Rending Slash",
+                       "Ground Stomp", "Intimidating Shout", "Charge", "Victory Rush", "Last Stand"],
+            "mage": ["Thunder Bolt", "Frost Nova", "Arcane Missile", "Fire Wall", "Ice Lance",
+                    "Mind Control", "Energy Shield", "Teleport", "Chain Lightning", "Time Warp"],
+            "rogue": ["Poison Strike", "Shadow Step", "Deadly Throw", "Garrote", "Kidney Shot",
+                     "Eviscerate", "Fan of Knives", "Cloak of Shadows", "Blade Flurry", "Death Mark"]
+        }
+        if self.level <= len(new_skills[self.char_class.lower()]):
+            new_skill = new_skills[self.char_class.lower()][self.level - 1]
+            self.skills.append(new_skill)
+            print(f"You learned a new skill: {new_skill}!")
+
+    def use_special_ability(self) -> int:
+        if self.char_class.lower() == "warrior":
+            damage = random.randint(10, 20)
+            print("You use Mighty Slash!")
+            return damage
+        elif self.char_class.lower() == "rogue":
+            damage = random.randint(8, 16)
+            print("You use Backstab!")
+            return damage
+        return 0
+
+    def cast_spell(self, spell: str) -> int:
+        spell_data = {
+            "Fireball": {"mana": 20, "damage": (10, 18), "message": "You cast a devastating Fireball!"},
+            "Ice Bolt": {"mana": 15, "damage": (8, 14), "message": "You launch a freezing Ice Bolt!"},
+            "Lightning Strike": {"mana": 25, "damage": (12, 20), "message": "You call down a powerful Lightning Strike!"},
+            "Shadow Blast": {"mana": 30, "damage": (15, 22), "message": "You unleash a dark Shadow Blast!"},
+            "Arcane Missiles": {"mana": 35, "damage": (18, 25), "message": "You fire multiple Arcane Missiles!"}
+        }
+        
+        if spell in spell_data:
+            cost = spell_data[spell]["mana"]
+            if self.mana >= cost:
+                self.mana -= cost
+                damage = random.randint(*spell_data[spell]["damage"])
+                print(spell_data[spell]["message"])
+                return damage
+            else:
+                print("Not enough mana!")
+        return 0
+
+    def use_potion(self):
+        if "Health Potion" in self.inventory:
+            self.hp = min(self.max_hp, self.hp + 20)
+            self.inventory.remove("Health Potion")
+            print("You used a Health Potion and recovered 20 HP!")
+        else:
+            print("No Health Potions left!")
+
+    def attack(self) -> int:
+        dice = {
+            "warrior": (1, 12),
+            "mage": (1, 6),
+            "rogue": (1, 8)
+        }
+        dice_type = dice.get(self.char_class.lower(), (1, 6))
+        result = roll_dice_visual(dice_type[1])[0]
+        return result + (self.damage_bonus if hasattr(self, 'damage_bonus') else 0)
+
+class Enemy:
+    def __init__(self, name: str, hp: int, damage: int, exp_reward: int):
+        self.name = name
+        self.hp = hp
+        self.damage = damage
+        self.exp_reward = exp_reward
+
+    def attack(self) -> int:
+        return random.randint(1, self.damage)
+
+def roll_dice_visual(sides: int, num_dice: int = 1) -> List[int]:
+    results = []
+    print("\nRolling dice...")
+    for _ in range(num_dice):
+        result = random.randint(1, sides)
+        dice_faces = {
+            'd20': [
+                "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"
+            ] * 3 + ["⚆", "⚇"]
+        }
+        print(f"{dice_faces['d20'][result % 6]} -> {result}")
+        time.sleep(0.5)
+        results.append(result)
+    return results
+
+class WeaponType:
+    def __init__(self, name: str, damage: tuple, special_effect: str = None):
+        self.name = name
+        self.damage = damage  # (min, max)
+        self.special_effect = special_effect
+
+WEAPONS = {
+    "Rusty Dagger": WeaponType("Rusty Dagger", (1, 4)),
+    "Vorpal Sword": WeaponType("Vorpal Sword", (2, 8), "Critical hits deal triple damage"),
+    "Staff of Thunder": WeaponType("Staff of Thunder", (1, 6), "Chance to stun"),
+    "Dragon's Breath Bow": WeaponType("Dragon's Breath Bow", (2, 7), "Ignites enemies"),
+    "Frost Axe": WeaponType("Frost Axe", (3, 6), "Slows enemy attacks"),
+    "Soul Reaver": WeaponType("Soul Reaver", (4, 8), "Lifesteal effect")
+}
+
+ENEMY_WEAKNESSES = {
+    "Goblin": ["Holy", "Fire"],
+    "Orc": ["Magic", "Ice"],
+    "Skeleton": ["Blunt", "Holy"],
+    "Dark Elf": ["Light", "Nature"],
+    "Troll": ["Fire", "Acid"],
+    "Giant Spider": ["Ice", "Lightning"],
+    "Demon": ["Holy", "Water"],
+    "Dragon": ["Ice", "Pierce"],
+    "Ancient Lich": ["Holy", "Sun"]
+}
+
+ADVANCED_SKILLS = {
+    "warrior": {
+        5: "Titan's Grip - Double weapon damage for 3 turns",
+        10: "Immortal Stance - Become invulnerable for 1 turn",
+        15: "Dragon's Roar - Frighten all enemies, reducing their damage",
+        20: "Warrior's Spirit - All stats increase by 50% for 5 turns"
+    },
+    "mage": {
+        5: "Time Stop - Skip enemy's next turn",
+        10: "Meteor Storm - Massive AoE damage",
+        15: "Arcane Barrier - Reflect spell damage",
+        20: "Elemental Master - Cast two spells per turn"
+    },
+    "rogue": {
+        5: "Shadow Dance - Cannot be hit for 2 turns",
+        10: "Thousand Cuts - Strike 5 times in one turn",
+        15: "Smoke Bomb - Escape from battle keeping rewards",
+        20: "Death Mark - Next attack deals triple damage"
+    }
+}
+
+def create_character() -> Character:
+    print("\n=== Character Creation ===")
+    name = input("Enter your character's name: ")
+    
+    print("\nAvailable classes:")
+    print("1. Warrior (High HP, Strong Attacks)")
+    print("2. Mage (Low HP, Magic Attacks)")
+    print("3. Rogue (Medium HP, Sneaky Attacks)")
+    print("4. Paladin (Medium HP, Holy Magic)")
+    print("5. Hunter (Medium HP, Ranged Attacks)")
+    print("6. Necromancer (Low HP, Dark Magic)")
+    
+    while True:
+        choice = input("Choose your class (1-3): ")
+        if choice in ['1', '2', '3']:
+            char_class = {
+                '1': 'warrior',
+                '2': 'mage',
+                '3': 'rogue'
+            }[choice]
+            break
+        print("Invalid choice. Please choose 1-3.")
+
+    return Character(name, char_class)
+
+def show_combat_menu(player: Character):
+    print("\nActions:")
+    print("1. Attack")
+    print("2. Use Special Ability")
+    if player.skills:
+        print("3. Use Skills:", ", ".join(player.skills))
+    if player.char_class.lower() == "mage" and player.spells:
+        print("4. Cast Spell")
+    print("5. Use Health Potion")
+    print("6. Check Status")
+    return input("Choose your action: ")
+
+def get_loot(enemy_name: str) -> dict:
+    loot_tables = {
+        "Goblin": {"herbs": 1, "thread": 1},
+        "Orc": {"iron": 1, "leather": 1},
+        "Skeleton": {"bone": 1, "crystal": 1},
+        "Dark Elf": {"crystal": 2, "mushroom": 1},
+        "Troll": {"leather": 2, "iron": 2},
+        "Giant Spider": {"thread": 3, "crystal": 1},
+        "Demon": {"crystal": 3, "iron": 2},
+        "Dragon": {"crystal": 4, "iron": 3},
+        "Ancient Lich": {"crystal": 5, "bone": 3}
+    }
+    return loot_tables.get(enemy_name, {})
+
+def combat(player: Character, enemy: Enemy) -> bool:
+    print(f"\nA {enemy.name} appears!")
+    
+    while True:
+        print(f"\n{player.name} HP: {player.hp}/{player.max_hp}")
+        if player.char_class.lower() == "mage":
+            print(f"Mana: {player.mana}/{player.max_mana}")
+        print(f"{enemy.name} HP: {enemy.hp}")
+        
+        choice = show_combat_menu(player)
+        
+        # Handle player action
+        damage = 0
+        if choice == "1":
+            damage = player.attack()
+            print(f"You deal {damage} damage to the {enemy.name}!")
+        elif choice == "2":
+            print("\nAvailable skills:")
+            for i, skill in enumerate(player.skills, 1):
+                print(f"{i}. {skill}")
+            try:
+                skill_choice = int(input("Choose skill number: ")) - 1
+                if 0 <= skill_choice < len(player.skills):
+                    damage = player.use_skill(player.skills[skill_choice])
+                else:
+                    print("Invalid skill choice!")
+                    continue
+            except ValueError:
+                print("Invalid input!")
+                continue
+        elif choice == "4" and player.char_class.lower() == "mage":
+            print("\nAvailable spells:")
+            for i, spell in enumerate(player.spells, 1):
+                print(f"{i}. {spell}")
+            spell_choice = input("Choose a spell (number): ")
+            try:
+                spell = player.spells[int(spell_choice) - 1]
+                damage = player.cast_spell(spell)
+            except (ValueError, IndexError):
+                print("Invalid spell choice!")
+                continue
+        elif choice == "4":
+            player.use_potion()
+            continue
+        
+        enemy.hp -= damage
+        if enemy.hp <= 0:
+            print(f"\nYou defeated the {enemy.name}!")
+            player.exp += enemy.exp_reward
+            gold_reward = random.randint(10, 50)
+            player.gold += gold_reward
+            
+            # Add loot
+            loot = get_loot(enemy.name)
+            for material, amount in loot.items():
+                player.crafting_materials[material] = player.crafting_materials.get(material, 0) + amount
+                print(f"Found {amount} {material}!")
+            
+            print(f"You gained {enemy.exp_reward} experience and {gold_reward} gold!")
+            if player.exp >= player.exp_to_level:
+                player.level_up()
+            return True
+        
+        # Enemy attacks
+        damage = enemy.attack()
+        player.hp -= damage
+        print(f"The {enemy.name} deals {damage} damage to you!")
+        
+        if player.hp <= 0:
+            print("\nYou have been defeated!")
+            return False
+
+def shop(player: Character):
+    shop_items = {
+        "Health Potion": 30,
+        "Mana Potion": 25,
+        "Better Weapon": 100,
+        "Shield": 80,
+        "Magic Ring": 150,
+        "Enchanted Amulet": 200,
+        "Dragon Scale Armor": 300
+    }
+    
+    print("\n=== Welcome to the Shop ===")
+    print("Your gold:", player.gold if hasattr(player, 'gold') else 0)
+    print("\nAvailable items:")
+    for item, price in shop_items.items():
+        print(f"{item}: {price} gold")
+    
+    choice = input("\nWhat would you like to buy? (or 'exit' to leave): ").title()
+    if choice in shop_items:
+        if player.gold >= shop_items[choice]:
+            player.gold -= shop_items[choice]
+            player.inventory.append(choice)
+            if choice == "Better Weapon":
+                player.damage_bonus = 5
+            elif choice == "Shield":
+                player.defense_bonus = 3
+            print(f"\nYou bought {choice}!")
+        else:
+            print("\nNot enough gold!")
+
+def main():
+    print("Welcome to Enhanced D&D!")
+    player = create_character()
+    player.gold = 100  # Starting gold
+    player.damage_bonus = 0
+    player.defense_bonus = 0
+    
+    print(f"\n{player.name} the {player.char_class}")
+    print(f"Stats: STR: {player.strength}, DEX: {player.dexterity}, CON: {player.constitution}")
+    
+    enemies = [
+        Enemy("Goblin", 5, 6, 50),
+        Enemy("Orc", 10, 8, 100),
+        Enemy("Skeleton", 8, 7, 75),
+        Enemy("Dark Elf", 12, 9, 120),
+        Enemy("Troll", 15, 10, 150),
+        Enemy("Giant Spider", 18, 11, 200),
+        Enemy("Demon", 22, 13, 250),
+        Enemy("Dragon", 25, 12, 300),
+        Enemy("Ancient Lich", 30, 15, 400)
+    ]
+    
+    for enemy in enemies:
+        if not combat(player, enemy):
+            print("\nGame Over!")
+            return
+        player.hp = player.max_hp  # Heal between fights
+        player.mana = player.max_mana  # Restore mana
+        print("\nYou find a traveling merchant!")
+        shop(player)
+        
+    print("\nCongratulations! You've won the game!")
+
+if __name__ == "__main__":
+    main()
